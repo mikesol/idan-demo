@@ -1,0 +1,33 @@
+{
+  "name": "idan-demo",
+  "version": "0.0.0",
+  "main": "dist/index.js",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^24.0.18",
+    "@types/node": "^12.7.2",
+    "jest": "^24.9.0",
+    "prettier": "^1.18.2",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.6.2"
+  },
+  "dependencies": {
+    "fast-check": "^1.16.3",
+    "fp-ts": "^2.0.5",
+    "io-ts": "^2.0.1",
+    "json-schema-fast-check": "^0.0.6",
+    "json-schema-poet": "^0.0.6",
+    "json-schema-strictly-typed": "^0.0.14",
+    "jsonschema": "^1.2.4"
+  },
+  "scripts": {
+    "compile": "tsc",
+    "lint:fix": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
+    "lint": "prettier --check \"src/**/*.ts\" \"test/**/*.ts\"",
+    "test": "jest",
+    "prepublish": "yarn compile && yarn lint && yarn test",
+    "test:ci": "yarn run coverage --ci --maxWorkers=2  --reporters=default --reporters=jest-junit",
+    "coverage": "yarn test --coverage",
+    "coverage:upload": "codecov"
+  }
+}
