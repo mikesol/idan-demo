@@ -4,8 +4,8 @@ import fc from "fast-check";
 test("step 1 and step 2", () => {
   // myValue is what we'd pass to unmock, a mix of constants
   // and "poet" functions
-  const myValue: ExtendedValue = {
-    foo: 1,
+  const myValue = {
+    type: "object",
     bar: {
       baz: 1,
       hello: poet.integer()
@@ -15,28 +15,36 @@ test("step 1 and step 2", () => {
   // into an extended form of JSON schema and keeps the JSON schema as-is
   expect(step1(myValue)).toEqual({
     type: "object",
-    unmock: US,
     properties: {
-      foo: { unmock: US, const: 1 },
+      type: { const: "object" },
       bar: {
         type: "object",
-        unmock: US,
         properties: {
-          baz: { unmock: US, const: 1 },
-          hello: { unmock: US, type: "integer" }
+          baz: { const: 1 },
+          hello: { type: "integer" }
         },
-        required: []
+        required: ["baz", "hello"]
       }
     },
-    required: []
+    required: ["type", "bar"]
   });
-  expect(jsonschema.validate({
-    foo: 1,
-    bar: {
-      baz: 1,
-      hello: 42
-    }
-  }, step1(myValue)).valid).toBe(true);
+  expect(
+    jsonschema.validate(
+      {
+        type: "object",
+        bar: {
+          baz: 1,
+          hello: 42
+        }
+      },
+      step1(myValue)
+    ).valid
+  ).toBe(true);
   // step2 transforms a result of step1 into a fast check arbitrary
-  fc.assert(fc.property(step2(step1(myValue)), i => jsonschema.validate(i, step1(myValue)).valid))
+  fc.assert(
+    fc.property(
+      step2(step1(myValue)),
+      i => jsonschema.validate(i, step1(myValue)).valid
+    )
+  );
 });

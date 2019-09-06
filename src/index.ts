@@ -5,10 +5,9 @@ import {
   JSONObject,
   JSONSchemaObject,
   JSSTEmpty,
-  JSONValue,
-  JSSTTuple
+  JSSTAnything
 } from "json-schema-strictly-typed";
-import { extendT } from "json-schema-poet";
+import { extendT, tuple_, type_, cnst_ } from "json-schema-poet";
 import fc from "fast-check";
 import * as io from "io-ts";
 
@@ -33,10 +32,10 @@ type ExtendedPrimitive =
 const ExtendedPrimitive = io.union([JSONPrimitive, JSO]);
 export declare type ExtendedValue =
   | ExtendedPrimitive
-  | JSONArray
-  | JSONObject
   | ExtendedArray
-  | ExtendedObject;
+  | ExtendedObject
+  | JSONArray
+  | JSONObject;
 const ExtendedValue: io.Type<ExtendedValue, ExtendedValue> = io.recursion(
   "ExtendedValue",
   () =>
@@ -65,30 +64,29 @@ export const poet = extendT<JSSTEmpty<Unmock>, Unmock>({
 });
 export interface ExtendedArray extends Array<ExtendedValue> {}
 
-export const step1 = (
-  e: ExtendedValue
-): JSONSchemaObject<JSSTEmpty<Unmock>, Unmock> =>
+export const regularize = (
+  i: JSONSchemaObject<JSSTEmpty<Unmock>, Unmock>
+): JSONSchemaObject<JSSTEmpty<{}>, {}> => {
+  const { unmock, ...rest } = i;
+  return rest;
+};
+export const step1 = (e: ExtendedValue): JSSTAnything<JSSTEmpty<{}>, {}> =>
   JSO.is(e)
-    ? e
-    : JSONObject.is(e) ||
-      JSONArray.is(e) ||
-      io.boolean.is(e) ||
-      io.string.is(e) ||
-      io.number.is(e) ||
-      io.null.is(e)
-    ? poet.cnst(e)
-    : ExtendedArray.is(e)
-    ? poet.tuple(e.map(i => step1(i)))
-    : poet.type(
-        {},
-        Object.entries(e).reduce((a, b) => ({ ...a, [b[0]]: step1(b[1]) }), {})
-      );
+    ? regularize(e)
+    : ExtendedArray.is(e) || JSONArray.is(e)
+    ? tuple_<JSSTEmpty<{}>, {}>({})(e.map(i => step1(i)))
+    : ExtendedObject.is(e) || JSONObject.is(e)
+    ? type_<JSSTEmpty<{}>, {}>({})(
+        Object.entries(e).reduce((a, b) => ({ ...a, [b[0]]: step1(b[1]) }), {}),
+        {}
+      )
+    : cnst_<{}>({})(e);
 
 export const step2 = (
-  e: JSONSchemaObject<JSSTEmpty<Unmock>, Unmock>
+  e: JSONSchemaObject<JSSTEmpty<{}>, {}>
 ): fc.Arbitrary<any> =>
-  makeArbitrary<JSSTEmpty<Unmock>, Unmock>(e, {
-    c: JSSTEmpty(Unmock),
-    u: Unmock,
-    f: (t: JSSTEmpty<Unmock>) => fc.anything()
+  makeArbitrary<JSSTEmpty<{}>, {}>(e, {
+    c: JSSTEmpty(io.type({})),
+    u: io.type({}),
+    f: (t: JSSTEmpty<{}>) => fc.anything()
   });
