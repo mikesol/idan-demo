@@ -37,15 +37,19 @@ const out: Unmock = (url: string) => ({
   get: curryOp(url, "get")
 });
 
-export const runner = async <U>(a: fc.Arbitrary<U>, f: (u: U) => Promise<boolean>) => {
+export const runner = async <U>(
+  a: fc.Arbitrary<U>,
+  f: (u: U) => Promise<boolean>
+) => {
   await fc.assert(
     await fc.asyncProperty(a, step2(step1(hack[0].res)), async (z, p) => {
       nock(hack[0].url)
         [hack[0].method](hack[0].path)
-        .reply(hack[0].code, (uri: string, body: Body) =>
-          hack[0].middleware(uri, body, p)
-        );
-      spy.response.body = p;
+        .reply(hack[0].code, (uri: string, body: Body) => {
+          const out = hack[0].middleware(uri, body, p);
+          spy.response.body = out;
+          return out;
+        });
       return await f(z);
     })
   );

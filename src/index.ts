@@ -11,24 +11,24 @@ import { extendT, tuple_, type_, cnst_ } from "json-schema-poet";
 import fc from "fast-check";
 import * as io from "io-ts";
 
-export const US: unique symbol = Symbol();
-const _v = (u: unknown): u is Unmock =>
-  typeof u === "object" && (<any>u).unmock === US;
-const Unmock: io.Type<Unmock, Unmock> = new io.Type<Unmock, Unmock>(
-  "Unmock",
+export const RandomHackishSymbolThatWeWillRemoveLater: unique symbol = Symbol();
+const _v = (u: unknown): u is RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater =>
+  typeof u === "object" && (<any>u).randomHackishField === RandomHackishSymbolThatWeWillRemoveLater;
+const RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater: io.Type<RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater, RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater> = new io.Type<RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater, RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>(
+  "RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater",
   _v,
   (input, context) =>
     _v(input) ? io.success(input) : io.failure(input, context),
   io.identity
 );
-type Unmock = {
-  unmock: typeof US;
+type RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater = {
+  randomHackishField: typeof RandomHackishSymbolThatWeWillRemoveLater;
 };
-const JSO = JSONSchemaObject(JSSTEmpty(Unmock), Unmock);
+const JSO = JSONSchemaObject(JSSTEmpty(RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater), RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater);
 
 type ExtendedPrimitive =
   | JSONPrimitive
-  | JSONSchemaObject<JSSTEmpty<Unmock>, Unmock>;
+  | JSONSchemaObject<JSSTEmpty<RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>, RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>;
 const ExtendedPrimitive = io.union([JSONPrimitive, JSO]);
 export declare type ExtendedValue =
   | ExtendedPrimitive
@@ -59,15 +59,15 @@ const ExtendedArray: io.Type<ExtendedArray, ExtendedArray> = io.recursion(
   () => io.array(ExtendedValue)
 );
 
-export const poet = extendT<JSSTEmpty<Unmock>, Unmock>({
-  unmock: US
+export const poet = extendT<JSSTEmpty<RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>, RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>({
+  randomHackishField: RandomHackishSymbolThatWeWillRemoveLater
 });
 export interface ExtendedArray extends Array<ExtendedValue> {}
 
 export const regularize = (
-  i: JSONSchemaObject<JSSTEmpty<Unmock>, Unmock>
+  i: JSONSchemaObject<JSSTEmpty<RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>, RandomHackishTypeContainingTheRandomHackishSymbolThatWeWillRemoveLater>
 ): JSONSchemaObject<JSSTEmpty<{}>, {}> => {
-  const { unmock, ...rest } = i;
+  const { randomHackishField, ...rest } = i;
   return rest;
 };
 export const step1 = (e: ExtendedValue): JSSTAnything<JSSTEmpty<{}>, {}> =>

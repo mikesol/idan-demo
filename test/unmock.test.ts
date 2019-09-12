@@ -24,18 +24,19 @@ unmock("https://example.com")
       }
     ),
     (uri, _, i) => ({
-      id: uri.split("/").slice(-1),
+      id: parseInt(uri.split("/").slice(-1)[0]),
       ...(<JSONObject>i)
     })
   );
 
 test("Age message is sane.", async () => {
-  await runner(fc.integer(0,555), async (n) => {
+  await runner(fc.integer(0, 555), async n => {
     const msg = await ageMsg(n);
+    const { id, age, name } = spy.response.body;
     return (
-      (spy.response.body.age === undefined &&
-        msg === `Please enter your age, ${n}.`) ||
-      msg === `Hi ${n}, you are ${spy.response.body.age} years old.`
+      id === n &&
+      ((age === undefined && msg === `Please enter your age, ${name}.`) ||
+        msg === `Hi ${name}, you are ${age} years old.`)
     );
   });
 });
